@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuentes · TuProgreso</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a214e;
+    --paper: #f0f6fb;
+    --cream: #ddeef8;
+    --rust: #2b6a96;
+    --gold: #00caf7;
+    --muted: #4a6a8a;
+    --rule: #aacde6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    border-top: 3px double var(--rust);
+    border-bottom: 1px solid var(--rule);
+    padding: 32px 0 28px;
+    margin-bottom: 48px;
+  }
+
+  .header-text { flex: 1; }
+
+  .overline {
+    font-family: 'Source Serif 4', serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* Filters */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink);
+    border-color: var(--gold);
+    color: #ffffff;
+  }
+
+  /* Count */
+  .count-line {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+    letter-spacing: 0.05em;
+  }
+
+  .count-line span {
+    color: var(--rust);
+    font-weight: 600;
+  }
+
+  /* Reference list */
+  .ref-list {
+    list-style: none;
+  }
+
+  .ref-item {
+    display: flex;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    animation: fadeUp 0.4s ease both;
+    transition: background 0.2s;
+  }
+
+  .ref-item:hover {
+    background: rgba(0, 202, 247, 0.06);
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ref-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    color: var(--gold);
+    min-width: 28px;
+    padding-top: 2px;
+    font-style: italic;
+  }
+
+  .ref-content { flex: 1; }
+
+  .ref-type-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .badge-web    { color: #2b6a96; }
+  .badge-paper  { color: #1a214e; }
+  .badge-book   { color: #0099c2; }
+  .badge-inst   { color: #00caf7; }
+
+  .ref-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    font-weight: 300;
+  }
+
+  .ref-text strong {
+    font-weight: 600;
+  }
+
+  .ref-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    color: var(--rust);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .ref-link:hover {
+    border-bottom-color: var(--rust);
+  }
+
+  .ref-link::before {
+    content: '↗';
+    font-size: 11px;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 3px double var(--rust);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* Hidden items */
+  .ref-item.hidden { display: none; }
+
+  @media (max-width: 600px) {
+    .page-wrap { padding: 32px 20px 60px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .qr-panel { align-self: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header>
+    <div class="header-text">
+      <p class="overline">Proyecto TuProgreso · Fuentes consultadas</p>
+      <h1>Referencias <em>&amp;</em><br>Bibliografía</h1>
+      <p class="subtitle">Fuentes utilizadas en el desarrollo del proyecto TuProgreso · APA 7.ª edición</p>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Todas</button>
+    <button class="filter-btn" data-filter="web">Sitios web</button>
+    <button class="filter-btn" data-filter="paper">Artículos</button>
+    <button class="filter-btn" data-filter="book">Libros</button>
+    <button class="filter-btn" data-filter="inst">Institucional</button>
+  </div>
+
+  <p class="count-line">Mostrando <span id="count">37</span> referencias</p>
+
+  <ul class="ref-list" id="refList">
+
+    <!-- SITIOS WEB / INSTITUCIONALES -->
+    <li class="ref-item" data-type="web" style="animation-delay:0.02s">
+      <span class="ref-num">01</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Ascend RMS.</strong> (2023). Hybrid point of sale software overview.</p>
+        <a class="ref-link" href="https://help.ascendrms.com" target="_blank">help.ascendrms.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.04s">
+      <span class="ref-num">02</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Amazon Web Services (AWS).</strong> (2024). What is hybrid application development?</p>
+        <a class="ref-link" href="https://aws.amazon.com" target="_blank">aws.amazon.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.06s">
+      <span class="ref-num">03</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>NordVPN.</strong> (2023). What are cookies and how do they work?</p>
+        <a class="ref-link" href="https://nordvpn.com" target="_blank">nordvpn.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.08s">
+      <span class="ref-num">04</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>AI Future School.</strong> (2023). Understanding cookies in web applications.</p>
+        <a class="ref-link" href="https://ai-futureschool.com" target="_blank">ai-futureschool.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.10s">
+      <span class="ref-num">05</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>PostgreSQL Global Development Group.</strong> (2024). PostgreSQL: The world's most advanced open source database.</p>
+        <a class="ref-link" href="https://www.postgresql.org" target="_blank">postgresql.org</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.12s">
+      <span class="ref-num">06</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>IBM.</strong> (2022). ACID properties of transactions.</p>
+        <a class="ref-link" href="https://www.ibm.com/docs/en/cics-tx/11.1.0?topic=processing-acid-properties-transactions" target="_blank">ibm.com — ACID transactions</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.14s">
+      <span class="ref-num">07</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>IBM.</strong> (s.f.). ¿Qué es el edge computing?</p>
+        <a class="ref-link" href="https://www.ibm.com/es-es/think/topics/edge-computing" target="_blank">ibm.com — Edge computing</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.16s">
+      <span class="ref-num">08</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>IBM.</strong> (s.f.). What is Java?</p>
+        <a class="ref-link" href="https://www.ibm.com/think/topics/java" target="_blank">ibm.com — Java</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.18s">
+      <span class="ref-num">09</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>IBM.</strong> (s.f.). What is software testing?</p>
+        <a class="ref-link" href="https://www.ibm.com/think/topics/software-testing" target="_blank">ibm.com — Software testing</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.20s">
+      <span class="ref-num">10</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>IBM.</strong> (s.f.). What is Structured Query Language (SQL)?</p>
+        <a class="ref-link" href="https://www.ibm.com/think/topics/structured-query-language" target="_blank">ibm.com — SQL</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.22s">
+      <span class="ref-num">11</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>JavaFX Documentation Project.</strong> (2022). The MVVM Pattern.</p>
+        <a class="ref-link" href="https://fxdocs.github.io/docs/html5/#_the_mvvm_pattern" target="_blank">fxdocs.github.io</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.24s">
+      <span class="ref-num">12</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Oracle.</strong> (s.f.). ACID Properties.</p>
+        <a class="ref-link" href="https://docs.oracle.com/en/database/oracle/tuxedo-domain-frame-adapter/22c/tmaag/acid-properties.html" target="_blank">docs.oracle.com — ACID</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.26s">
+      <span class="ref-num">13</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Oracle.</strong> (s.f.). Class Bindings JavaFX 8.</p>
+        <a class="ref-link" href="https://docs.oracle.com/javase/8/javafx/api/javafx/beans/binding/Bindings.html" target="_blank">docs.oracle.com — Bindings</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.28s">
+      <span class="ref-num">14</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Oracle.</strong> (s.f.). JavaFX Overview.</p>
+        <a class="ref-link" href="https://docs.oracle.com/javase/8/javafx/get-started-tutorial/jfx-overview.htm" target="_blank">docs.oracle.com — JavaFX</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.30s">
+      <span class="ref-num">15</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Oracle.</strong> (s.f.). What is JavaFX?</p>
+        <a class="ref-link" href="https://docs.oracle.com/javafx/2/overview/jfxpub-overview.htm" target="_blank">docs.oracle.com — What is JavaFX</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.32s">
+      <span class="ref-num">16</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>PostgreSQL.</strong> (s.f.). About PostgreSQL.</p>
+        <a class="ref-link" href="https://www.postgresql.org/about/" target="_blank">postgresql.org/about</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.34s">
+      <span class="ref-num">17</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>Red Hat.</strong> (2021). What is edge computing?</p>
+        <a class="ref-link" href="https://www.redhat.com/en/topics/edge-computing/what-is-edge-computing" target="_blank">redhat.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="web" style="animation-delay:0.36s">
+      <span class="ref-num">18</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-web">Sitio web</span>
+        <p class="ref-text"><strong>SAP.</strong> (s.f.). ¿Qué es la automatización de procesos?</p>
+        <a class="ref-link" href="https://www.sap.com/latinamerica/products/technology-platform/process-automation/what-is-process-automation.html" target="_blank">sap.com</a>
+      </div>
+    </li>
+
+    <!-- INSTITUCIONALES -->
+    <li class="ref-item" data-type="inst" style="animation-delay:0.38s">
+      <span class="ref-num">19</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-inst">Institucional</span>
+        <p class="ref-text"><strong>Universidad Católica de Córdoba.</strong> (2024). Proyecto Turnero TAIE: innovación en la gestión de tutorías universitarias. Córdoba, Argentina.</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="inst" style="animation-delay:0.40s">
+      <span class="ref-num">20</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-inst">Institucional</span>
+        <p class="ref-text"><strong>Universidad del Valle de Guatemala.</strong> (2023). Tecnologías educativas para la transformación institucional.</p>
+        <a class="ref-link" href="https://uvg.edu.gt" target="_blank">uvg.edu.gt</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="inst" style="animation-delay:0.42s">
+      <span class="ref-num">21</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-inst">Institucional</span>
+        <p class="ref-text"><strong>Universidad Loyola Andalucía.</strong> (2022). Digitalización y gestión administrativa en instituciones educativas.</p>
+        <a class="ref-link" href="https://universidadloyola.edu.mx" target="_blank">universidadloyola.edu.mx</a>
+      </div>
+    </li>
+
+    <!-- ARTÍCULOS -->
+    <li class="ref-item" data-type="paper" style="animation-delay:0.44s">
+      <span class="ref-num">22</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Infante Contreras, C.</strong> (2010). Guía para la presentación de proyectos de investigación (1 ed.). Editorial Universidad Nacional de Colombia.</p>
+        <a class="ref-link" href="https://elibro.net/es/lc/huetamo/titulos/129844" target="_blank">elibro.net</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.46s">
+      <span class="ref-num">23</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Al Sheikh, R. et al.</strong> (2019). Developing and implementing a barcode based student attendance system. <em>IRJET, 6</em>(1).</p>
+        <a class="ref-link" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3418319" target="_blank">ssrn.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.48s">
+      <span class="ref-num">24</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Anwar, C. R., Hakim, A., & Nurhikmah.</strong> (2019). Academic Digitalization in Postgraduate Programs Universitas Negeri Makassar. <em>Advances in Social Science, Education and Humanities Research, 227.</em> Atlantis Press.</p>
+        <a class="ref-link" href="https://doi.org/10.2991/icamr-18.2019.7" target="_blank">doi:10.2991/icamr-18.2019.7</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.50s">
+      <span class="ref-num">25</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Calzavara, S., Focardi, R., Squarcina, M., & Tempesta, M.</strong> (2017). Surviving the Web: A Journey into Web Session Security. <em>ACM Computing Surveys, 50</em>(1), 1–34.</p>
+        <a class="ref-link" href="https://www.researchgate.net/publication/314289445_Surviving_the_Web_A_Journey_into_Web_Session_Security" target="_blank">researchgate.net</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.52s">
+      <span class="ref-num">26</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Eke, B. O., & Musa, M.</strong> (2017). Software Quality Measure. <em>International Journal of Computer Applications Technology and Research, 6</em>(4), 175–182.</p>
+        <a class="ref-link" href="https://www.researchgate.net/publication/315927073_Software_Quality_Measure" target="_blank">researchgate.net</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.54s">
+      <span class="ref-num">27</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Juhasz, Z.</strong> (2021). Quantitative cost comparison of on-premise and cloud infrastructure based EEG data processing. <em>Cluster Computing, 24</em>, 625–641.</p>
+        <a class="ref-link" href="https://doi.org/10.1007/s10586-020-03141-y" target="_blank">doi:10.1007/s10586-020-03141-y</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.56s">
+      <span class="ref-num">28</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Kurniali, S., & Mayliana.</strong> (2014). The development of a web-based attendance system with RFID for higher education institution in Binus University. <em>EPJ Web of Conferences, 68</em>, 38.</p>
+        <a class="ref-link" href="https://doi.org/10.1051/epjconf/20146800038" target="_blank">doi:10.1051/epjconf/20146800038</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.58s">
+      <span class="ref-num">29</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Mahlan, S. B. et al.</strong> (2025). A Web-Based System for Managing Student Attendance and Assessment Submissions: An SDLC Waterfall Model Approach. <em>Journal of Computing Research and Innovation, 10</em>(2).</p>
+        <a class="ref-link" href="https://jcrinn.com/index.php/jcrinn/article/view/539/369" target="_blank">jcrinn.com</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.60s">
+      <span class="ref-num">30</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Makkaraka, A. M. R. B., Iskandar, A., & Yang, W.</strong> (2024). Design of Web-Based Student Academic Information System. <em>Ceddi Journal of Education, 3</em>(2).</p>
+        <a class="ref-link" href="https://doi.org/10.56134/cje.v3i2.102" target="_blank">doi:10.56134/cje.v3i2.102</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.62s">
+      <span class="ref-num">31</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Nyabuto, G. M., Mony, V. O., & Mbuguah, S.</strong> (2024). Architectural Review of Client-Server Models. <em>International Journal of Advanced Science and Computer Applications, 10</em>(1), 139–143.</p>
+        <a class="ref-link" href="https://www.researchgate.net/publication/376512127_Architectural_Review_of_Client-Server_Models" target="_blank">researchgate.net</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.64s">
+      <span class="ref-num">32</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Patel, U. A., & Swaminarayan, P. R.</strong> (2014). Development of a Student Attendance Management System Using RFID and Face Recognition: A Review. <em>International Journal of Advance Research in Computer Science and Management Studies, 2</em>(8).</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.66s">
+      <span class="ref-num">33</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Tao, P., Rudys, A., Ladd, A. M., & Wallach, D. S.</strong> (2003). Wireless LAN location-sensing for security applications. <em>WiSE '03: Proceedings of the 2nd ACM workshop on Wireless security</em>, 11–20.</p>
+        <a class="ref-link" href="https://dl.acm.org/doi/abs/10.1145/941311.941314" target="_blank">dl.acm.org</a>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="paper" style="animation-delay:0.68s">
+      <span class="ref-num">34</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-paper">Artículo</span>
+        <p class="ref-text"><strong>Wiriasto, G. W., Aji, R. W. S., & Budiman, D. F.</strong> (2020). Design and development of attendance system application using Android-based Flutter. <em>2020 the 3rd ICVEE</em>.</p>
+      </div>
+    </li>
+
+    <!-- LIBROS -->
+    <li class="ref-item" data-type="book" style="animation-delay:0.70s">
+      <span class="ref-num">35</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-book">Libro</span>
+        <p class="ref-text"><strong>Duckett, J.</strong> (2011). <em>HTML & CSS: Design and Build Web Sites.</em> Wiley.</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="book" style="animation-delay:0.72s">
+      <span class="ref-num">36</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-book">Libro</span>
+        <p class="ref-text"><strong>Flanagan, D.</strong> (2020). <em>JavaScript: The Definitive Guide.</em> O'Reilly Media.</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="book" style="animation-delay:0.74s">
+      <span class="ref-num">37</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-book">Libro</span>
+        <p class="ref-text"><strong>Foster, L.</strong> (2015). <em>Networking Essentials: A Complete Guide to Computer Networking For Beginners.</em> Routledge.</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="book" style="animation-delay:0.76s">
+      <span class="ref-num">38</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-book">Libro</span>
+        <p class="ref-text"><strong>McMillan, T.</strong> (2015). <em>Cisco Networking Essentials</em> (2.ª ed.). Sybex.</p>
+      </div>
+    </li>
+
+    <li class="ref-item" data-type="book" style="animation-delay:0.78s">
+      <span class="ref-num">39</span>
+      <div class="ref-content">
+        <span class="ref-type-badge badge-book">Libro</span>
+        <p class="ref-text"><strong>Ullenboom, C.</strong> (2023). <em>Spring Boot 3 and Spring Framework 6.</em> Rheinwerk.</p>
+      </div>
+    </li>
+
+  </ul>
+
+  <footer>
+    <span>Proyecto TuProgreso · Referencias bibliográficas · APA 7.ª edición</span>
+    <span>39 fuentes</span>
+  </footer>
+
+</div>
+
+<script>
+  // Filter logic
+  const btns = document.querySelectorAll('.filter-btn');
+  const items = document.querySelectorAll('.ref-item');
+  const countEl = document.getElementById('count');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      let visible = 0;
+      items.forEach(item => {
+        const show = f === 'all' || item.dataset.type === f;
+        item.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      countEl.textContent = visible;
+    });
+  });
+</script>
+</body>
+</html>
