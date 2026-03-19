@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La Cenaduria Mexicana — Gestión de Platillos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #1a0f07;
+      --surface:   #231508;
+      --card:      #2e1a0e;
+      --border:    #5c3018;
+      --terra:     #c2541a;
+      --gold:      #e8a020;
+      --cream:     #f5e6c8;
+      --muted:     #9c7a56;
+      --red:       #b52b27;
+      --green:     #2e6e3e;
+      --radius:    10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── DECORATIVE HEADER ── */
+    header {
+      position: relative;
+      text-align: center;
+      padding: 52px 24px 36px;
+      border-bottom: 2px solid var(--border);
+      background: radial-gradient(ellipse at 50% 0%, #3d1a08 0%, transparent 70%);
+    }
+
+    .header-ornament {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin-bottom: 12px;
+    }
+    .header-ornament span { font-size: 1.6rem; }
+    .ornament-line {
+      flex: 1; max-width: 120px;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      text-shadow: 0 2px 30px rgba(232,160,32,0.3);
+    }
+    header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      position: relative; z-index: 1;
+    }
+
+    .layout { display: grid; grid-template-columns: 360px 1fr; gap: 32px; align-items: start; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+    /* ── PANEL (FORM) ── */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      position: sticky; top: 20px;
+    }
+
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: 'DM Mono', monospace;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(232,160,32,0.15);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group select option { background: var(--card); }
+
+    .price-wrap { position: relative; }
+    .price-wrap span {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--gold); font-weight: 600; font-size: 1rem;
+    }
+    .price-wrap input { padding-left: 28px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: none; border-radius: 6px; cursor: pointer;
+      font-family: 'DM Mono', monospace; font-size: 0.85rem;
+      letter-spacing: 0.5px; padding: 11px 20px;
+      transition: all 0.2s; font-weight: 500;
+    }
+    .btn-primary {
+      background: var(--terra); color: #fff; width: 100%;
+      box-shadow: 0 4px 16px rgba(194,84,26,0.35);
+    }
+    .btn-primary:hover { background: #d96020; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(194,84,26,0.5); }
+    .btn-secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); width: 100%; margin-top: 8px; }
+    .btn-secondary:hover { color: var(--cream); border-color: var(--muted); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── SEARCH & FILTER BAR ── */
+    .controls {
+      display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .5; }
+    .search-wrap input {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--cream); padding: 10px 14px 10px 38px;
+      font-family: 'Lora', serif; font-size: 0.95rem; outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input:focus { border-color: var(--gold); }
+    .filter-btn {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted); padding: 8px 14px;
+      font-family: 'DM Mono', monospace; font-size: 0.78rem;
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .filter-btn.active { background: var(--terra); color: #fff; border-color: var(--terra); }
+    .filter-btn:hover:not(.active) { border-color: var(--muted); color: var(--cream); }
+
+    /* ── STATS BAR ── */
+    .stats {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Playfair Display', serif; font-size: 1.8rem;
+      color: var(--gold); line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace;
+    }
+
+    /* ── CARDS GRID ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+      animation: fadeUp .35s ease both;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-emoji {
+      font-size: 3rem; background: var(--surface);
+      text-align: center; padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-body { padding: 14px 16px; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; color: var(--cream); font-weight: 700; line-height: 1.2;
+    }
+    .badge {
+      font-family: 'DM Mono', monospace; font-size: 0.68rem;
+      padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .badge-verde    { background: rgba(46,110,62,0.3);  color: #7fcc96; border: 1px solid #2e6e3e; }
+    .badge-rojo     { background: rgba(181,43,39,0.3);  color: #f08080; border: 1px solid #b52b27; }
+    .badge-antojito { background: rgba(194,84,26,0.3);  color: #f0a060; border: 1px solid #c2541a; }
+    .badge-sopa     { background: rgba(140,90,20,0.35); color: #e8c060; border: 1px solid #8c5a14; }
+    .badge-bebida   { background: rgba(30,80,140,0.35); color: #80b8f0; border: 1px solid #1e508c; }
+    .badge-postre   { background: rgba(130,40,110,0.3); color: #e080d0; border: 1px solid #822870; }
+
+    .card-desc {
+      color: var(--muted); font-size: 0.85rem; margin: 8px 0;
+      font-style: italic; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+    .card-price {
+      font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold);
+    }
+    .card-spicy { font-size: 0.85rem; }
+
+    .card-actions { display: flex; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .action-btn {
+      flex: 1; border: none; border-radius: 5px; cursor: pointer;
+      font-family: 'DM Mono', monospace; font-size: 0.78rem;
+      padding: 7px 0; transition: all .2s;
+    }
+    .btn-edit { background: rgba(232,160,32,0.15); color: var(--gold); border: 1px solid rgba(232,160,32,0.3); }
+    .btn-edit:hover { background: rgba(232,160,32,0.28); }
+    .btn-delete { background: rgba(181,43,39,0.15); color: #f08080; border: 1px solid rgba(181,43,39,0.3); }
+    .btn-delete:hover { background: rgba(181,43,39,0.3); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      grid-column: 1/-1; text-align: center; padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty span { font-size: 4rem; display: block; margin-bottom: 12px; }
+    .empty p { font-style: italic; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px 28px;
+      max-width: 400px; width: 90%; text-align: center;
+      transform: translateY(20px); transition: transform .25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 10px; }
+    .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-cancel { flex:1; background: var(--surface); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 10px; cursor: pointer; font-family: 'DM Mono', monospace; }
+    .btn-confirm { flex:1; background: var(--red); color: #fff; border: none; border-radius: 6px; padding: 10px; cursor: pointer; font-family: 'DM Mono', monospace; }
+    .btn-cancel:hover { color: var(--cream); }
+    .btn-confirm:hover { background: #c93330; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 22px;
+      font-family: 'DM Mono', monospace; font-size: 0.85rem; color: var(--cream);
+      z-index: 200; transition: transform .3s, opacity .3s;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5); opacity: 0;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 2px;
+      color: var(--muted); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">
+    <div class="ornament-line"></div>
+    <span>🌮</span>
+    <div class="ornament-line"></div>
+  </div>
+  <h1>La Cenaduria<br>Mexicana</h1>
+  <p>Sistema de gestión de platillos · Sabor de tradición</p>
+</header>
+
+<main>
+  <div class="layout">
+
+    <!-- ── FORM PANEL ── -->
+    <aside class="panel">
+      <div class="panel-title" id="formTitle">🍽️ &nbsp;Nuevo Platillo</div>
+
+      <div class="form-group">
+        <label>Nombre del platillo</label>
+        <input id="fNombre" type="text" placeholder="Ej. Pozole Rojo de Cerdo"/>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="fCategoria">
+            <option value="antojito">🫔 Antojito</option>
+            <option value="sopa">🍲 Sopa / Caldo</option>
+            <option value="verde">🥗 Platillo Verde</option>
+            <option value="rojo">🌶 Platillo Rojo</option>
+            <option value="bebida">🥤 Bebida</option>
+            <option value="postre">🍮 Postre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <div class="price-wrap">
+            <span>$</span>
+            <input id="fPrecio" type="number" min="0" step="0.5" placeholder="0.00"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="fDesc" placeholder="Ingredientes, preparación especial…"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Emoji / Icono</label>
+          <input id="fEmoji" type="text" maxlength="4" placeholder="🌮" style="text-align:center;font-size:1.4rem;"/>
+        </div>
+        <div class="form-group">
+          <label>Nivel de picante</label>
+          <select id="fPicante">
+            <option value="0">🤍 Sin picante</option>
+            <option value="1">🌶 Suave</option>
+            <option value="2">🌶🌶 Medio</option>
+            <option value="3">🌶🌶🌶 Picosísimo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <button class="btn btn-primary" onclick="guardar()">✦ Guardar Platillo</button>
+      <button class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()" style="display:none">✕ Cancelar edición</button>
+    </aside>
+
+    <!-- ── RIGHT PANEL ── -->
+    <section>
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Platillos</div></div>
+        <div class="stat"><div class="stat-val" id="statCats">0</div><div class="stat-lbl">Categorías</div></div>
+        <div class="stat"><div class="stat-val" id="statAvg">$0</div><div class="stat-lbl">Precio prom.</div></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="search-wrap">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="searchInput" type="text" placeholder="Buscar platillo…" oninput="renderCards()"/>
+        </div>
+        <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
+        <button class="filter-btn" onclick="setFilter('antojito', this)">Antojitos</button>
+        <button class="filter-btn" onclick="setFilter('sopa', this)">Sopas</button>
+        <button class="filter-btn" onclick="setFilter('bebida', this)">Bebidas</button>
+        <button class="filter-btn" onclick="setFilter('postre', this)">Postres</button>
+      </div>
+
+      <div class="section-label">Menú actual</div>
+      <div class="cards" id="cardsGrid"></div>
+    </section>
+  </div>
+</main>
+
+<!-- Modal confirmación -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>¿Eliminar platillo?</h3>
+    <p id="modalMsg">Esta acción no se puede deshacer.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm" id="modalConfirm">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────
+  let platillos = JSON.parse(localStorage.getItem('cenaduria') || '[]');
+  let editId = null;
+  let currentFilter = 'todos';
+  let deleteTarget = null;
+
+  // Datos de ejemplo si no hay nada guardado
+  if (platillos.length === 0) {
+    platillos = [
+      { id: uid(), nombre: 'Pozole Rojo', categoria: 'sopa', precio: 95, desc: 'Caldo de maíz cacahuazintle con cerdo, chile guajillo y garnachas al gusto.', emoji: '🍲', picante: 2 },
+      { id: uid(), nombre: 'Tlayuda Oaxaqueña', categoria: 'antojito', precio: 75, desc: 'Tortilla crujiente con frijoles negros, tasajo y quesillo hilado.', emoji: '🫔', picante: 1 },
+      { id: uid(), nombre: 'Enchiladas Verdes', categoria: 'verde', precio: 80, desc: 'Tortillas bañadas en salsa de tomatillo con pollo deshebrado y crema fresca.', emoji: '🥗', picante: 1 },
+      { id: uid(), nombre: 'Tacos de Barbacoa', categoria: 'antojito', precio: 55, desc: 'Carne de res cocinada en hojas de maguey, servida con cilantro, cebolla y salsa borracha.', emoji: '🌮', picante: 2 },
+      { id: uid(), nombre: 'Agua de Jamaica', categoria: 'bebida', precio: 25, desc: 'Refrescante infusión de flor de jamaica con azúcar y limón.', emoji: '🥤', picante: 0 },
+      { id: uid(), nombre: 'Flan Napolitano', categoria: 'postre', precio: 45, desc: 'Flan cremoso con caramelo dorado y toque de vainilla de Papantla.', emoji: '🍮', picante: 0 },
+      { id: uid(), nombre: 'Mole Rojo con Pollo', categoria: 'rojo', precio: 110, desc: 'Más de 30 ingredientes: chile mulato, pasilla, piloncillo y chocolate amargo.', emoji: '🍗', picante: 3 },
+      { id: uid(), nombre: 'Tamales de Rajas', categoria: 'antojito', precio: 40, desc: 'Masa de maíz rellena de rajas con crema y queso, envuelta en hoja de maíz.', emoji: '🌽', picante: 1 },
+    ];
+    save();
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────────────
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function save() { localStorage.setItem('cenaduria', JSON.stringify(platillos)); }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  const badgeClass = {
+    verde:'badge-verde', rojo:'badge-rojo', antojito:'badge-antojito',
+    sopa:'badge-sopa', bebida:'badge-bebida', postre:'badge-postre'
+  };
+  const catLabel = {
+    verde:'Verde', rojo:'Rojo', antojito:'Antojito',
+    sopa:'Sopa', bebida:'Bebida', postre:'Postre'
+  };
+  const picantes = ['','🌶','🌶🌶','🌶🌶🌶'];
+
+  // ── RENDER ────────────────────────────────────────────────────────
+  function renderCards() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    let lista = platillos.filter(p =>
+      (currentFilter === 'todos' || p.categoria === currentFilter) &&
+      (p.nombre.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))
+    );
+
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = '';
+
+    if (lista.length === 0) {
+      grid.innerHTML = `<div class="empty"><span>🫙</span><p>No se encontraron platillos.<br>¡Agrega el primero!</p></div>`;
+    } else {
+      lista.forEach((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.animationDelay = `${i * 0.05}s`;
+        card.innerHTML = `
+          <div class="card-emoji">${p.emoji || '🍽️'}</div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-name">${esc(p.nombre)}</div>
+              <span class="badge ${badgeClass[p.categoria] || ''}">${catLabel[p.categoria] || p.categoria}</span>
+            </div>
+            <div class="card-desc">${esc(p.desc)}</div>
+            <div class="card-footer">
+              <div class="card-price">$${Number(p.precio).toFixed(2)}</div>
+              <div class="card-spicy">${picantes[p.picante] || ''}</div>
+            </div>
+            <div class="card-actions">
+              <button class="action-btn btn-edit" onclick="editar('${p.id}')">✎ Editar</button>
+              <button class="action-btn btn-delete" onclick="confirmarEliminar('${p.id}')">✕ Eliminar</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Stats
+    const precios = platillos.map(p => Number(p.precio));
+    document.getElementById('statTotal').textContent = platillos.length;
+    document.getElementById('statCats').textContent = new Set(platillos.map(p => p.categoria)).size;
+    document.getElementById('statAvg').textContent = platillos.length
+      ? '$' + (precios.reduce((a,b)=>a+b,0)/precios.length).toFixed(0) : '$0';
+  }
+
+  function esc(str) {
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── FILTER ────────────────────────────────────────────────────────
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards();
+  }
+
+  // ── CRUD ──────────────────────────────────────────────────────────
+  function guardar() {
+    const nombre = document.getElementById('fNombre').value.trim();
+    const precio = parseFloat(document.getElementById('fPrecio').value);
+    const categoria = document.getElementById('fCategoria').value;
+    const desc = document.getElementById('fDesc').value.trim();
+    const emoji = document.getElementById('fEmoji').value.trim() || '🍽️';
+    const picante = parseInt(document.getElementById('fPicante').value);
+
+    if (!nombre) { toast('⚠️ El nombre es obligatorio'); return; }
+    if (isNaN(precio) || precio < 0) { toast('⚠️ Ingresa un precio válido'); return; }
+
+    if (editId) {
+      const idx = platillos.findIndex(p => p.id === editId);
+      if (idx > -1) platillos[idx] = { ...platillos[idx], nombre, precio, categoria, desc, emoji, picante };
+      toast('✦ Platillo actualizado');
+      cancelarEdicion();
+    } else {
+      platillos.unshift({ id: uid(), nombre, precio, categoria, desc, emoji, picante });
+      toast('✦ Platillo agregado al menú');
+    }
+    save(); limpiarForm(); renderCards();
+  }
+
+  function editar(id) {
+    const p = platillos.find(x => x.id === id);
+    if (!p) return;
+    editId = id;
+    document.getElementById('fNombre').value = p.nombre;
+    document.getElementById('fPrecio').value = p.precio;
+    document.getElementById('fCategoria').value = p.categoria;
+    document.getElementById('fDesc').value = p.desc;
+    document.getElementById('fEmoji').value = p.emoji;
+    document.getElementById('fPicante').value = p.picante;
+    document.getElementById('formTitle').textContent = '✎  Editando platillo';
+    document.getElementById('btnCancelar').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelarEdicion() {
+    editId = null;
+    limpiarForm();
+    document.getElementById('formTitle').textContent = '🍽️  Nuevo Platillo';
+    document.getElementById('btnCancelar').style.display = 'none';
+  }
+
+  function limpiarForm() {
+    ['fNombre','fPrecio','fDesc','fEmoji'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fCategoria').value = 'antojito';
+    document.getElementById('fPicante').value = '0';
+  }
+
+  // ── DELETE MODAL ──────────────────────────────────────────────────
+  function confirmarEliminar(id) {
+    const p = platillos.find(x => x.id === id);
+    if (!p) return;
+    deleteTarget = id;
+    document.getElementById('modalMsg').textContent = `Se eliminará "${p.nombre}" permanentemente.`;
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('modalConfirm').onclick = () => {
+      platillos = platillos.filter(x => x.id !== deleteTarget);
+      save(); renderCards();
+      closeModal();
+      toast('✕ Platillo eliminado');
+    };
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    deleteTarget = null;
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────────
+  renderCards();
+</script>
+</body>
+</html>
